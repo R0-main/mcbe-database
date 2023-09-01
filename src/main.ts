@@ -6,7 +6,9 @@ import DataBase from 'database';
 // create or load if database exist
 /* const plots = new DataBase('plots'); */
 
-const plots = new DataBase('plots')
+const plots = new DataBase<number>('plots')
+
+plots.data = "dfazfa"
 
 // change the data of the data base
 /* plots.data.plot1 = {
@@ -15,7 +17,6 @@ const plots = new DataBase('plots')
 	createDate: Date.now(),
 }; */
 
-plots.data.message = '2'.repeat(34000),
 /* plots.data.message1 = 'data.message1'.repeat(10000),
 plots.data.message2 = 'data.message2'.repeat(10000), */
 
@@ -23,10 +24,10 @@ plots.data.message2 = 'data.message2'.repeat(10000), */
 plots.save();
 
 
-
-
 world.beforeEvents.chatSend.subscribe((data) => {
 	system.run(() => {
-		console.warn(plots.data.message)
+		plots.data = [data.message]
+		plots.save()
+		console.warn(plots.data)
 	});
 });

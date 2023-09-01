@@ -3,7 +3,7 @@ export default class DataBase {
     constructor(name) {
         this.name = name;
         this.objective = world.scoreboard.getObjective(this.name);
-        this.data = {};
+        this.data = null;
         if (!this.exist())
             this.create();
         else
@@ -17,10 +17,12 @@ export default class DataBase {
     save() {
         this.reset();
         let stringedData = JSON.stringify(this.data);
-        if (stringedData.length >= 32.768) {
-            stringedData = this.chunckString(stringedData, 32.768);
+        if (stringedData.length >= 32768) {
+            stringedData = this.chunckString(stringedData, 32768);
             stringedData.forEach((str) => this.objective.setScore(str, 0));
         }
+        else
+            this.objective.setScore(JSON.stringify(this.data), 0);
     }
     load() {
         if (!this.objective?.getParticipants()[0])
@@ -48,7 +50,7 @@ export default class DataBase {
         Database formating methods
         
         */
-    chunckString(str, x = 32.768) {
+    chunckString(str, x = 32768) {
         const chunks = [];
         for (let i = 0; i < str.length; i += x) {
             const chunk = str.slice(i, i + x);

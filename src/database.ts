@@ -1,9 +1,9 @@
 import { ScoreboardObjective, world } from '@minecraft/server';
 
-export default class DataBase {
+export default class DataBase <TData>{
 	private objective: ScoreboardObjective = world.scoreboard.getObjective(this.name);
 
-	public data: object = {};
+	public data: TData = null;
 
 	constructor(private name: string) {
 		if (!this.exist()) this.create();
@@ -18,13 +18,14 @@ export default class DataBase {
 
 	public save(): void {
 		this.reset();
-
+		
 		let stringedData: string | Array<string> = JSON.stringify(this.data);
 
-		if (stringedData.length >= 32.768) {
-			stringedData = this.chunckString(stringedData, 32.768);
+		if (stringedData.length >= 32768) {
+			stringedData = this.chunckString(stringedData, 32768);
 			stringedData.forEach((str) => this.objective.setScore(str, 0));
-		}
+		}else this.objective.setScore(JSON.stringify(this.data), 0)
+
 	}
 
 	private load(): void {
@@ -59,7 +60,7 @@ export default class DataBase {
 		
 		*/
 
-	private chunckString(str: string, x: number = 32.768): string[] {
+	private chunckString(str: string, x: number = 32768): string[] {
 		const chunks: string[] = [];
 		for (let i = 0; i < str.length; i += x) {
 			const chunk = str.slice(i, i + x);
