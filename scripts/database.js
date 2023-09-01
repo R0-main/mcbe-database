@@ -49,11 +49,11 @@ export default class DataBase {
         
         */
     chunckString(str, x = 32.768) {
-        const morceaux = [];
+        const chunks = [];
         for (let i = 0; i < str.length; i += x) {
-            const morceau = str.slice(i, i + x);
-            morceaux.push(morceau);
+            const chunk = str.slice(i, i + x);
+            chunks.push(chunk);
         }
-        return morceaux;
+        return chunks;
     }
 }

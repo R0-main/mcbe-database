@@ -60,13 +60,11 @@ export default class DataBase {
 		*/
 
 	private chunckString(str: string, x: number = 32.768): string[] {
-		const morceaux: string[] = [];
-
+		const chunks: string[] = [];
 		for (let i = 0; i < str.length; i += x) {
-			const morceau = str.slice(i, i + x);
-			morceaux.push(morceau);
+			const chunk = str.slice(i, i + x);
+			chunks.push(chunk);
 		}
-
-		return morceaux;
+		return chunks;
 	}
 }
