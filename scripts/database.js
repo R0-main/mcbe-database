@@ -3,34 +3,11 @@ export default class DataBase {
     constructor(name) {
         this.name = name;
         this.objective = world.scoreboard.getObjective(this.name);
+        this.data = {};
         if (!this.exist())
             this.create();
         else
             this.load();
-    }
-    /*
-
-        Data formating methods
-    */
-    static convertToBinary(obj) {
-        const str = JSON.stringify(obj);
-        let finalResult = '';
-        for (let i = 0; i < str.length; i++) {
-            finalResult += str[i].charCodeAt(0).toString(2);
-        }
-        return finalResult;
-    }
-    static decodeBinary(str) {
-        let result = '';
-        for (let i = 0; i < str.length; i += 8) {
-            const octet = str.substr(i, 8);
-            const decimalValue = parseInt(octet, 2);
-            if (decimalValue !== 0) {
-                const character = String.fromCharCode(decimalValue);
-                result += character;
-            }
-        }
-        return result;
     }
     /*
     
@@ -39,15 +16,25 @@ export default class DataBase {
     */
     save() {
         this.reset();
-        this.objective.setScore(DataBase.convertToBinary(this.data), 0);
+        let stringedData = JSON.stringify(this.data);
+        if (stringedData.length >= 32.768) {
+            stringedData = this.chunckString(stringedData, 32.768);
+            stringedData.forEach((str) => this.objective.setScore(str, 0));
+        }
     }
     load() {
-        if (this.objective.getParticipants()[0])
-            this.data = JSON.parse(DataBase.decodeBinary(this.objective.getParticipants()[0].displayName.replaceAll(' ', '')));
-        //this.objective.setScore(DataBase.convertToBinary(this.data), 0);
+        if (!this.objective?.getParticipants()[0])
+            return;
+        let stringedData = '';
+        this.objective.getParticipants().forEach((participant) => {
+            console.warn(participant.displayName);
+            stringedData += participant.displayName;
+        });
+        this.data = JSON.parse(stringedData);
+        //this.data = JSON.parse(this.objective.getParticipants()[0].displayName);
     }
     reset() {
-        if (this.objective.getParticipants()[0])
+        if (this.objective?.getParticipants()[0])
             this.objective.getParticipants().map((participant) => this.objective.removeParticipant(participant));
     }
     exist() {
@@ -55,5 +42,18 @@ export default class DataBase {
     }
     create() {
         world.scoreboard.addObjective(this.name, this.name);
+    }
+    /*
+        
+        Database formating methods
+        
+        */
+    chunckString(str, x = 32.768) {
+        const morceaux = [];
+        for (let i = 0; i < str.length; i += x) {
+            const morceau = str.slice(i, i + x);
+            morceaux.push(morceau);
+        }
+        return morceaux;
     }
 }
