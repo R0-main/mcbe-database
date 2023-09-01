@@ -3,3 +3,9 @@
 ./build.bat
 ./pack_icon.png
 ./pack_icon.png
+./src/customPlayer.ts
+./src/register.commands.ts
+./src/main.ts
+./package-lock.json
+./package.json
+./tsconfig.json
