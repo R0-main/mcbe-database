@@ -3,7 +3,7 @@ import { ScoreboardObjective, world } from '@minecraft/server';
 export default class DataBase <TData>{
 	private objective: ScoreboardObjective = world.scoreboard.getObjective(this.name);
 
-	public data: TData = null;
+	public data: TData | null = null;
 
 	constructor(private name: string) {
 		if (!this.exist()) this.create();
