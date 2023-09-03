@@ -39,7 +39,6 @@ export default class DataBase <TData>{
 		});
 
 		this.data = JSON.parse(stringedData);
-		//this.data = JSON.parse(this.objective.getParticipants()[0].displayName);
 	}
 
 	private reset(): void {
