@@ -1,3 +1,4 @@
+// @ts-ignore
 import { ScoreboardObjective, world } from '@minecraft/server';
 
 export default class DataBase <TData>{
@@ -34,7 +35,6 @@ export default class DataBase <TData>{
 		let stringedData: string = '';
 
 		this.objective.getParticipants().forEach((participant) => {
-			console.warn(participant.displayName);
 			stringedData += participant.displayName;
 		});
 
