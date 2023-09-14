@@ -5,7 +5,7 @@ export default class DataBase<TData> {
 
 	public data: TData | null = null;
 
-	constructor(private name: string, value?: TData | null, private onLoadCallback?: (data: TData) => void) {
+	constructor(public name: string, value?: TData | null, private onLoadCallback?: (data: TData) => void) {
 		this.data = value;
 		if (!this.exist()) this.create();
 		else this.load();
