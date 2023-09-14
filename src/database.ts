@@ -1,13 +1,15 @@
 import { ScoreboardObjective, world } from '@minecraft/server';
 
-export default class DataBase <TData>{
+export default class DataBase<TData> {
 	private objective: ScoreboardObjective = world.scoreboard.getObjective(this.name);
 
 	public data: TData | null = null;
 
-	constructor(private name: string) {
+	constructor(private name: string, value?: TData | null, private onLoadCallback?: (data: TData) => void) {
+		this.data = value;
 		if (!this.exist()) this.create();
 		else this.load();
+		return this;
 	}
 
 	/*
@@ -18,15 +20,20 @@ export default class DataBase <TData>{
 
 	public save(): void {
 		this.reset();
-		
+
 		let stringedData: string | Array<string> = JSON.stringify(this.data);
 
+		// @ts-ignore
 		if (stringedData.length >= 32768) {
 			stringedData = this.chunckString(stringedData, 32768);
 			stringedData.forEach((str) => this.objective.setScore(str, 0));
-		}else this.objective.setScore(JSON.stringify(this.data), 0)
-
+		} else this.objective.setScore(JSON.stringify(this.data), 0);
 	}
+
+	/* 	public onLoad(callback: (data: TData) => void): DataBase<TData> {
+		this.onLoadFunction = callback;
+		return this
+	} */
 
 	private load(): void {
 		if (!this.objective?.getParticipants()[0]) return;
@@ -34,12 +41,12 @@ export default class DataBase <TData>{
 		let stringedData: string = '';
 
 		this.objective.getParticipants().forEach((participant) => {
-			console.warn(participant.displayName);
 			stringedData += participant.displayName;
 		});
 
-		this.data = JSON.parse(stringedData);
-		//this.data = JSON.parse(this.objective.getParticipants()[0].displayName);
+		if (!!stringedData) this.data = JSON.parse(stringedData);
+
+		this?.onLoadCallback(this.data);
 	}
 
 	private reset(): void {
