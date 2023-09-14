@@ -5,7 +5,7 @@ export default class DataBase<TData> {
 
 	public data: TData | null = null;
 
-	constructor(public name: string, value?: TData | null, private onLoadCallback?: (data: TData) => void) {
+	constructor(public name: string, value?: TData | null, private onLoadCallback?: (data: DataBase<TData>) => void) {
 		this.data = value;
 		if (!this.exist()) this.create();
 		else this.load();
@@ -30,11 +30,6 @@ export default class DataBase<TData> {
 		} else this.objective.setScore(JSON.stringify(this.data), 0);
 	}
 
-	/* 	public onLoad(callback: (data: TData) => void): DataBase<TData> {
-		this.onLoadFunction = callback;
-		return this
-	} */
-
 	private load(): void {
 		if (!this.objective?.getParticipants()[0]) return;
 
@@ -46,7 +41,7 @@ export default class DataBase<TData> {
 
 		if (!!stringedData) this.data = JSON.parse(stringedData);
 
-		this?.onLoadCallback(this.data);
+		if (this.onLoadCallback) this.onLoadCallback(this);
 	}
 
 	private reset(): void {
@@ -65,7 +60,7 @@ export default class DataBase<TData> {
 		
 		Database formating methods
 		
-		*/
+	*/
 
 	private chunckString(str: string, x: number = 32768): string[] {
 		const chunks: string[] = [];
