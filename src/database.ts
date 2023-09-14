@@ -19,6 +19,7 @@ export default class DataBase<TData> {
     */
 
 	public save(): void {
+		if (!this.data) return
 		this.reset();
 
 		let stringedData: string | Array<string> = JSON.stringify(this.data);
@@ -27,7 +28,7 @@ export default class DataBase<TData> {
 		if (stringedData.length >= 32768) {
 			stringedData = this.chunckString(stringedData, 32768);
 			stringedData.forEach((str) => this.objective.setScore(str, 0));
-		} else this.objective.setScore(JSON.stringify(this.data), 0);
+		} else this.objective.setScore(stringedData, 0);
 	}
 
 	private load(): void {
@@ -53,7 +54,7 @@ export default class DataBase<TData> {
 	}
 
 	private create(): void {
-		world.scoreboard.addObjective(this.name, this.name);
+		this.objective = world.scoreboard.addObjective(this.name, this.name);
 	}
 
 	/*

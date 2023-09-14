@@ -1,0 +1,20 @@
+{
+	"format_version": 2,
+	"metadata": { "authors": ["JustRomain"] },
+	"header": {
+		"name": "Main > mcbe-database | 4-0-0",
+		"description": "",
+		"min_engine_version": [1, 20, 10],
+		"uuid": "e61fc0e3-4e16-4e1d-8ec3-47370f96a1ac",
+		"version": [4, 0, 0]
+	},
+	"modules": [
+		{ "type": "data", "uuid": "f3f9684e-8e79-47a7-858b-4ef27baaf023", "version": [1, 0, 0] },
+		{ "type": "script", "language": "javascript", "uuid": "c9e5ae9a-aa70-4e65-85a7-79ab090acc69", "entry": "scripts/main.js", "version": [1, 0, 0] }
+	],
+	"dependencies": [
+		{ "uuid": "bbd5965c-dd5a-498f-afa6-dac2d6c70d21", "version": [1, 0, 0] },
+		{ "module_name": "@minecraft/server", "version": "1.4.0-beta" },
+		{ "module_name": "@minecraft/server-ui", "version": "1.2.0-beta" }
+	]
+}
