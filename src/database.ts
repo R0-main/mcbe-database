@@ -24,7 +24,6 @@ export default class DataBase<TData> {
 
 		let stringedData: string | Array<string> = JSON.stringify(this.data);
 
-		// @ts-ignore
 		if (stringedData.length >= 32768) {
 			stringedData = this.chunckString(stringedData, 32768);
 			stringedData.forEach((str, i) => this.objective.setScore(str, i));
