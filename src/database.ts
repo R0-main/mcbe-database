@@ -5,7 +5,7 @@ export default class DataBase<TData> {
 
 	public data: TData | null = null;
 
-	constructor(public name: string, value?: TData | null, private onLoadCallback?: (data: DataBase<TData>) => void) {
+	constructor(public readonly name: string, value?: TData | null, private readonly onLoadCallback?: (data: DataBase<TData>) => void) {
 		this.data = value;
 		if (!this.exist()) this.create();
 		else this.load();
@@ -19,7 +19,7 @@ export default class DataBase<TData> {
     */
 
 	public save(): void {
-		if (!this.data) return
+		if (!this.data) return;
 		this.reset();
 
 		let stringedData: string | Array<string> = JSON.stringify(this.data);
@@ -27,20 +27,22 @@ export default class DataBase<TData> {
 		// @ts-ignore
 		if (stringedData.length >= 32768) {
 			stringedData = this.chunckString(stringedData, 32768);
-			stringedData.forEach((str) => this.objective.setScore(str, 0));
+			stringedData.forEach((str, i) => this.objective.setScore(str, i));
 		} else this.objective.setScore(stringedData, 0);
 	}
 
 	private load(): void {
 		if (!this.objective?.getParticipants()[0]) return;
 
-		let stringedData: string = '';
+		const participants = this.objective.getParticipants();
 
-		this.objective.getParticipants().forEach((participant) => {
-			stringedData += participant.displayName;
+		const dataArray: Array<string> = new Array(participants.length);
+
+		this.objective.getParticipants().forEach((participant, index) => {
+			dataArray[index] = participant.displayName;
 		});
 
-		if (!!stringedData) this.data = JSON.parse(stringedData);
+		if (dataArray.length > 0) this.data = JSON.parse(dataArray.join(''));
 
 		if (this.onLoadCallback) this.onLoadCallback(this);
 	}
