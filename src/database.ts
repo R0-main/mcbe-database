@@ -1,6 +1,8 @@
 import { ScoreboardObjective, world } from '@minecraft/server';
 
 export default class DataBase<TData> {
+	private static readonly MAX_CHAR: number = 32768;
+
 	private objective: ScoreboardObjective = world.scoreboard.getObjective(this.name);
 
 	public data: TData | null = null;
@@ -24,8 +26,8 @@ export default class DataBase<TData> {
 
 		let stringedData: string | Array<string> = JSON.stringify(this.data);
 
-		if (stringedData.length >= 32768) {
-			stringedData = this.chunckString(stringedData, 32768);
+		if (stringedData.length >= DataBase.MAX_CHAR) {
+			stringedData = this.chunckString(stringedData, DataBase.MAX_CHAR);
 			stringedData.forEach((str, i) => this.objective.setScore(str, i));
 		} else this.objective.setScore(stringedData, 0);
 	}
@@ -34,11 +36,19 @@ export default class DataBase<TData> {
 		if (!this.objective?.getParticipants()[0]) return;
 
 		const participants = this.objective.getParticipants();
+		const dataArray: Array<string> = [];
+		let oldScore: number = 0;
 
-		const dataArray: Array<string> = new Array(participants.length);
+		participants.forEach((participant) => {
+			const score = this.objective.getScore(participant);
 
-		this.objective.getParticipants().forEach((participant) => {
-			dataArray[this.objective.getScore(participant)] = participant.displayName;
+			if (score - oldScore === 1 || score === 0 || score === participants.length - 1) dataArray[score] = participant.displayName;
+			else {
+				for (let i = 0; i < score - oldScore; i++) {
+					dataArray[score - oldScore - i] = participant.displayName;
+				}
+			}
+			oldScore = score;
 		});
 
 		if (dataArray.length > 0) this.data = JSON.parse(dataArray.join(''));
@@ -47,7 +57,8 @@ export default class DataBase<TData> {
 	}
 
 	private reset(): void {
-		if (this.objective?.getParticipants()[0]) this.objective.getParticipants().map((participant) => this.objective.removeParticipant(participant));
+		if (this.objective?.getParticipants()?.length > 0)
+			this.objective.getParticipants().map((participant) => this.objective.removeParticipant(participant));
 	}
 
 	private exist(): boolean {
@@ -64,7 +75,7 @@ export default class DataBase<TData> {
 		
 	*/
 
-	private chunckString(str: string, x: number = 32768): string[] {
+	private chunckString(str: string, x: number = DataBase.MAX_CHAR): string[] {
 		const chunks: string[] = [];
 		for (let i = 0; i < str.length; i += x) {
 			const chunk = str.slice(i, i + x);
