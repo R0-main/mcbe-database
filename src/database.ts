@@ -33,25 +33,15 @@ export default class DataBase<TData> {
 	}
 
 	private load(): void {
-		if (!this.objective?.getParticipants()[0]) return;
+		if (this.objective?.getParticipants()?.length > 0) return;
 
-		const participants = this.objective.getParticipants();
-		const dataArray: Array<string> = [];
-		let oldScore: number = 0;
+		let stringedData: string = '';
 
-		participants.forEach((participant) => {
-			const score = this.objective.getScore(participant);
-
-			if (score - oldScore === 1 || score === 0 || score === participants.length - 1) dataArray[score] = participant.displayName;
-			else {
-				for (let i = 0; i < score - oldScore; i++) {
-					dataArray[score - oldScore - i] = participant.displayName;
-				}
-			}
-			oldScore = score;
+		this.objective.getParticipants().forEach((participant) => {
+			stringedData += participant.displayName;
 		});
 
-		if (dataArray.length > 0) this.data = JSON.parse(dataArray.join(''));
+		if (!!stringedData) this.data = JSON.parse(stringedData);
 
 		if (this.onLoadCallback) this.onLoadCallback(this);
 	}
