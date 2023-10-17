@@ -37,8 +37,8 @@ export default class DataBase<TData> {
 
 		const dataArray: Array<string> = new Array(participants.length);
 
-		this.objective.getParticipants().forEach((participant, index) => {
-			dataArray[index] = participant.displayName;
+		this.objective.getParticipants().forEach((participant) => {
+			dataArray[this.objective.getScore(participant)] = participant.displayName;
 		});
 
 		if (dataArray.length > 0) this.data = JSON.parse(dataArray.join(''));
