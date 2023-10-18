@@ -1,7 +1,7 @@
-import { ScoreboardObjective, world } from '@minecraft/server';
+import { ScoreboardIdentity, ScoreboardObjective, world } from '@minecraft/server';
 
 export default class DataBase<TData> {
-	private static readonly MAX_CHAR: number = 32768;
+	private static readonly MAX_CHAR: number = 32768 - 1;
 
 	private objective: ScoreboardObjective = world.scoreboard.getObjective(this.name);
 
@@ -11,7 +11,6 @@ export default class DataBase<TData> {
 		this.data = value;
 		if (!this.exist()) this.create();
 		else this.load();
-		return this;
 	}
 
 	/*
@@ -33,15 +32,29 @@ export default class DataBase<TData> {
 	}
 
 	private load(): void {
-		if (this.objective?.getParticipants()?.length > 0) return;
+		if (this.objective?.getParticipants()?.length < 0) return;
 
-		let stringedData: string = '';
+		const participants: Array<ScoreboardIdentity> = this.objective.getParticipants();
+
+		const data: Array<string> = [];
+
+		const maxScore: number = Math.max(...participants.map((participant) => this.objective.getScore(participant)));
+		let oldScore: number = 0;
 
 		this.objective.getParticipants().forEach((participant) => {
-			stringedData += participant.displayName;
+			const score = this.objective.getScore(participant);
+			if (score === 0 || score - oldScore === 1 || score === maxScore) {
+				data[score] = participant.displayName;
+			} else {
+				const diff = score - oldScore;
+				for (let i = 0; i < diff; i++) {
+					data[score - i] = participant.displayName;
+				}
+			}
+			oldScore = score;
 		});
 
-		if (!!stringedData) this.data = JSON.parse(stringedData);
+		if (data.length > 0) this.data = JSON.parse(data.join(''));
 
 		if (this.onLoadCallback) this.onLoadCallback(this);
 	}
