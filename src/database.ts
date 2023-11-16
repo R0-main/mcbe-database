@@ -1,5 +1,12 @@
 import { ScoreboardIdentity, ScoreboardObjective, world } from '@minecraft/server';
 
+export type TEventsMethods<TData> = {
+	beforeSave?: (database: DataBase<TData>) => void;
+	afterSave?: (database: DataBase<TData>) => void;
+	beforeLoad?: (database: DataBase<TData>) => void;
+	afterLoad?: (database: DataBase<TData>) => void;
+};
+
 export default class DataBase<TData> {
 	private static readonly MAX_CHAR: number = 32768 - 1;
 
@@ -7,7 +14,16 @@ export default class DataBase<TData> {
 
 	public data: TData | null = null;
 
-	constructor(public readonly name: string, value?: TData | null, private readonly onLoadCallback?: (data: DataBase<TData>) => void) {
+	constructor(
+		public readonly name: string,
+		value?: TData | null,
+		private readonly eventsMethods: TEventsMethods<TData> = {
+			afterSave: () => {},
+			afterLoad: () => {},
+			beforeLoad: () => {},
+			beforeSave: () => {},
+		}
+	) {
 		this.data = value;
 		if (!this.exist()) this.create();
 		else this.load();
@@ -23,15 +39,18 @@ export default class DataBase<TData> {
 		if (!this.data) return;
 		this.reset();
 
+		this.eventsMethods.beforeSave(this);
 		let stringedData: string | Array<string> = JSON.stringify(this.data);
 
 		if (stringedData.length >= DataBase.MAX_CHAR) {
 			stringedData = this.chunckString(stringedData, DataBase.MAX_CHAR);
 			stringedData.forEach((str, i) => this.objective.setScore(str, i));
 		} else this.objective.setScore(stringedData, 0);
+		this.eventsMethods.afterSave(this);
 	}
 
 	private load(): void {
+		this.eventsMethods.beforeLoad(this);
 		if (this.objective?.getParticipants()?.length < 0) return;
 
 		const participants: Array<ScoreboardIdentity> = this.objective.getParticipants();
@@ -56,7 +75,7 @@ export default class DataBase<TData> {
 
 		if (data.length > 0) this.data = JSON.parse(data.join(''));
 
-		if (this.onLoadCallback) this.onLoadCallback(this);
+		this.eventsMethods.afterLoad(this);
 	}
 
 	private reset(): void {
