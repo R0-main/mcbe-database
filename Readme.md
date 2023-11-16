@@ -11,11 +11,22 @@ Also you can put what will be the default value if the database is new.
 const playerStats = new DataBase<TPlayerStats>('db_player_stats', { kills: 0, deaths: 0, money: 1000 })
 ```
 
-Then you can define a function who will be triggered when the database is loaded. So you can map some values with this method.
+Then you can define some methods to perform action on your data at each steps of the database methods. So you can map some values with this method.
 ```ts
-const playerStats = new DataBase<TPlayerStats>('db_player_stats', { kills: 0, deaths: 0, money: 1000 }, (database: DataBase<TPlayerStats>) =>
-	console.warn(database.name + ' database is now loaded!')
-);
+const playerStats = new DataBase<TPlayerStats>('db_player_stats', { kills: 0, deaths: 0, money: 1000 }, {
+	afterLoad : (database: typeof playerStats) => {
+		console.warn(`${database.name} > has been loaded !`);
+	},
+	beforeLoad : (database: typeof playerStats) => {
+		console.warn(`${database.name} > will be loaded !`);
+	},
+	beforeSave : (database: typeof playerStats) => {
+		console.warn(`${database.name} > will be saved !`);
+	},
+	afterSave : (database: typeof playerStats) => {
+		console.warn(`${database.name} > has been saved !`);
+	}
+})
 ```
 
 You can updates database values by applying values to the database.data 
@@ -49,9 +60,11 @@ type TPlayerStats = {
 	money: number;
 };
 
-const playerStats = new DataBase<TPlayerStats>('db_player_stats', { kills: 0, deaths: 0, money: 1000 }, (database: DataBase<TPlayerStats>) =>
-	console.warn(database.name + ' database is now loaded!')
-);
+const playerStats = new DataBase<TPlayerStats>('db_player_stats', { kills: 0, deaths: 0, money: 1000 }, {
+	afterLoad : (database: typeof playerStats) => {
+		console.warn(`${database.name} > has been loaded !`);
+	}
+});
 
 // change data like you want
 playerStats.data.kills = 5;
@@ -65,8 +78,15 @@ playerStats.save();
 
 # Database Properties : 
 ```
-Database(<:name>, <:default value>, <:on load callback>)
+Database(<:name>, <:default value>, <:Events Methods callback>)
 ```
 ```ts
-new DataBase<object>( name: string, value?: object | null, onLoadCallback?: (data: DataBase<object>) => void)
+new DataBase<object>( name: string, value?: object | null, eventsMethods?: TEventsMethods<TData>)
+
+export type TEventsMethods<TData> = {
+	beforeSave?: (database: DataBase<TData>) => void;
+	afterSave?: (database: DataBase<TData>) => void;
+	beforeLoad?: (database: DataBase<TData>) => void;
+	afterLoad?: (database: DataBase<TData>) => void;
+};
 ```
