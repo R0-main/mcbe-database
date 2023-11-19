@@ -39,18 +39,18 @@ export default class DataBase<TData> {
 		if (!this.data) return;
 		this.reset();
 
-		this.eventsMethods.beforeSave(this);
+		if (this.eventsMethods.beforeSave) this.eventsMethods.beforeSave(this);
 		let stringedData: string | Array<string> = JSON.stringify(this.data);
 
 		if (stringedData.length >= DataBase.MAX_CHAR) {
 			stringedData = this.chunckString(stringedData, DataBase.MAX_CHAR);
 			stringedData.forEach((str, i) => this.objective.setScore(str, i));
 		} else this.objective.setScore(stringedData, 0);
-		this.eventsMethods.afterSave(this);
+		if (this.eventsMethods.afterSave) this.eventsMethods.afterSave(this);
 	}
 
 	private load(): void {
-		this.eventsMethods.beforeLoad(this);
+		if (this.eventsMethods.beforeLoad) this.eventsMethods.beforeLoad(this);
 		if (this.objective?.getParticipants()?.length < 0) return;
 
 		const participants: Array<ScoreboardIdentity> = this.objective.getParticipants();
@@ -75,7 +75,7 @@ export default class DataBase<TData> {
 
 		if (data.length > 0) this.data = JSON.parse(data.join(''));
 
-		this.eventsMethods.afterLoad(this);
+		if (this.eventsMethods.afterLoad) this.eventsMethods.afterLoad(this);
 	}
 
 	private reset(): void {
